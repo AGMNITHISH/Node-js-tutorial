@@ -11,4 +11,27 @@ const getALLUser = asyncHandler(async (req, res) => {
     msg: "get ALL User",
   });
 });
-module.exports = { addUser, getALLUser };
+
+const updateUser = asyncHandler(async (req, res) => {
+  const { name } = req.params;
+  try {
+    res.status(200).json({
+      msg: `user ${name} updated`,
+    });
+  } catch (error) {
+    throw new Error("update error");
+  }
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+  const { name } = req.params;
+  try {
+    res.status(200).json({
+      msg: `user ${name} deleted`,
+    });
+  } catch (error) {
+    throw new Error("delete error");
+  }
+});
+
+module.exports = { addUser, getALLUser, updateUser, deleteUser };
