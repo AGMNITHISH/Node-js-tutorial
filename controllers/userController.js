@@ -4,7 +4,7 @@ const userModal = require("../model/userModel");
 const addUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
 
-  if (!username && !password) {
+  if (!username || !password) {
     res.status(400);
     throw new Error("username or password is missing");
   }
@@ -28,7 +28,7 @@ const updateUser = asyncHandler(async (req, res) => {
   try {
     const { name } = req.params;
     const { newName } = req.body;
-    if (name && newName) {
+    if (name || newName) {
       const updateUser = await userModal.findOneAndUpdate(
         { username: name },
         { $set: { username: newName } },

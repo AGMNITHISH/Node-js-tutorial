@@ -14,6 +14,7 @@ dbConnect();
 
 // service calls
 app.use("/user", require("./routes/userRoute"));
+app.use("/react-table", require("./routes/reactTableData"));
 
 // custom middleware (error handler)
 app.use(errorHandler);
