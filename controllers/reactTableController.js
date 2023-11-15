@@ -29,7 +29,11 @@ const addTableData = asyncHandler(async (req, res) => {
 });
 const getTableData = asyncHandler(async (req, res) => {
   try {
-    const result = await ReactTableData.find();
+    const result = await ReactTableData.find().select({
+      _id: 0,
+      createdAt: 0,
+      updatedAt: 0,
+    });
     res.status(200).json({ doc: result });
   } catch (error) {
     res.status(500);
