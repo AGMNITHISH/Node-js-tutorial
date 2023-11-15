@@ -4,27 +4,52 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const addUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  try {
+    const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
-    res.status(400);
-    throw new Error("username or password is missing");
+    if (!username || !email || !password) {
+      res.status(400);
+      throw new Error("username or password is missing");
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPswd = await bcrypt.hash(password, salt);
+    const result = await userModal.create({
+      username,
+      email,
+      password: hashedPswd,
+    });
+    if (result) {
+      res.status(201).json({
+        user: {
+          msg: "new user created",
+          name: result.username,
+          email: result.email,
+        },
+      });
+    } else {
+      res.status(404);
+      throw new Error("new user is not created");
+    }
+  } catch (error) {
+    throw new Error(error);
   }
-  const result = await userModal.create({
-    username,
-    email,
-    password,
-  });
-  res.status(200).json({
-    result,
-  });
 });
 
 const getALLUser = asyncHandler(async (req, res) => {
-  const result = await userModal.find();
-  res.status(200).json({
-    msg: result,
-  });
+  try {
+    const result = await userModal.find().select({
+      _id: 0,
+      __v: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      password: 0,
+    });
+    res.status(200).json({
+      data: result,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
 });
 
 const updateUser = asyncHandler(async (req, res) => {
@@ -52,7 +77,10 @@ const updateUser = asyncHandler(async (req, res) => {
       res.status(404).json({ err: "user not updated" });
     }
     res.status(200).json({
-      doc: updateUser,
+      data: {
+        name: updateUser.username,
+        email: updateUser.email,
+      },
     });
   } catch (error) {
     res.status(500);
