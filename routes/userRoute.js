@@ -9,6 +9,6 @@ const {
 
 router.route("/").get(getALLUser).post(addUser);
 
-router.route("/:name").put(updateUser).delete(deleteUser);
+router.route("/:email").put(updateUser).delete(deleteUser);
 
 module.exports = router;

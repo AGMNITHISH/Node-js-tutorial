@@ -1,15 +1,18 @@
 const asyncHandler = require("express-async-handler");
 const userModal = require("../model/userModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const addUser = asyncHandler(async (req, res) => {
-  const { username, password } = req.body;
+  const { username, email, password } = req.body;
 
-  if (!username || !password) {
+  if (!username || !email || !password) {
     res.status(400);
     throw new Error("username or password is missing");
   }
   const result = await userModal.create({
     username,
+    email,
     password,
   });
   res.status(200).json({
@@ -26,25 +29,31 @@ const getALLUser = asyncHandler(async (req, res) => {
 
 const updateUser = asyncHandler(async (req, res) => {
   try {
-    const { name } = req.params;
+    const { email } = req.params;
     const { newName } = req.body;
-    if (name || newName) {
-      const updateUser = await userModal.findOneAndUpdate(
-        { username: name },
-        { $set: { username: newName } },
-        { new: true }
-      );
-
-      if (!updateUser) {
-        res.status(404).json({ err: "user not found" });
-      }
-      res.status(200).json({
-        doc: updateUser,
-      });
-    } else {
-      res.status(400);
-      throw new Error("required fields missing");
+    if (!email || !newName) {
+      res.status(404);
+      throw new Error("manditory fileds missing");
     }
+
+    const checkExisting = await userModal.findOne({ email: email });
+
+    if (!checkExisting) {
+      res.status(404);
+      throw new Error("no user found");
+    }
+    const updateUser = await userModal.findOneAndUpdate(
+      { email: email },
+      { $set: { username: newName } },
+      { new: true }
+    );
+
+    if (!updateUser) {
+      res.status(404).json({ err: "user not updated" });
+    }
+    res.status(200).json({
+      doc: updateUser,
+    });
   } catch (error) {
     res.status(500);
     throw new Error(error);
@@ -52,14 +61,19 @@ const updateUser = asyncHandler(async (req, res) => {
 });
 
 const deleteUser = asyncHandler(async (req, res) => {
-  const { name } = req.params;
+  const { email } = req.params;
   try {
-    if (!name) {
+    if (!email) {
       res.status(404);
-      throw new Error("username is required");
+      throw new Error("email is required");
+    }
+    const checkExisting = await userModal.findOne({ email: email });
+    if (!checkExisting) {
+      res.status(404);
+      throw new Error(`${email}  is not a existing user`);
     }
 
-    const deleteUser = await userModal.findOneAndDelete({ username: name });
+    const deleteUser = await userModal.findOneAndDelete({ email: email });
 
     if (deleteUser) {
       res.status(200).json({
@@ -67,7 +81,7 @@ const deleteUser = asyncHandler(async (req, res) => {
       });
     } else {
       res.status(404);
-      throw new Error("user not found");
+      throw new Error("Someting went wromg, user not deleted");
     }
   } catch (error) {
     throw new Error(error);
