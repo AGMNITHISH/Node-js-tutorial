@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const reactTableSchema = mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     brand: {
       type: String,
       required: true,

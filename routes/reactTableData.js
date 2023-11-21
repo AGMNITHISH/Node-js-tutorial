@@ -9,7 +9,8 @@ const {
 } = require("../controllers/reactTableController");
 const protect = require("../middleware/authMiddleware");
 
-router.route("/").get(protect, getTableData).post(protect, addTableData);
+router.get("/:id", protect, getTableData);
+router.post("/", protect, addTableData);
 router
   .route("/:model")
   .put(protect, updateTableDataStatus)

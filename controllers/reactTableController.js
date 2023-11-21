@@ -2,8 +2,18 @@ const asyncHandler = require("express-async-handler");
 const ReactTableData = require("../model/reactTableModel");
 
 const addTableData = asyncHandler(async (req, res) => {
-  const { brand, model, image, car_body, color, price, year } = req.body;
-  if (!brand || !model || !image || !car_body || !color || !price || !year) {
+  const { brand, model, image, car_body, color, price, year, userId } =
+    req.body;
+  if (
+    !brand ||
+    !model ||
+    !image ||
+    !car_body ||
+    !color ||
+    !price ||
+    !year ||
+    !userId
+  ) {
     res.status(404);
     throw new Error("please fill the required fields");
   }
@@ -18,6 +28,7 @@ const addTableData = asyncHandler(async (req, res) => {
       color,
       price,
       year,
+      userId,
     });
     res.status(201).json({
       doc: createTableRow,
@@ -28,11 +39,14 @@ const addTableData = asyncHandler(async (req, res) => {
   }
 });
 const getTableData = asyncHandler(async (req, res) => {
+  const { id } = req.params;
   try {
-    const result = await ReactTableData.find().select({
+    const result = await ReactTableData.find({ userId: id }).select({
       _id: 0,
       createdAt: 0,
       updatedAt: 0,
+      userId: 0,
+      __v: 0,
     });
     res.status(200).json({ doc: result });
   } catch (error) {
