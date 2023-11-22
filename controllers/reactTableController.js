@@ -17,7 +17,10 @@ const addTableData = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("please fill the required fields");
   }
-  const findExistingModal = await ReactTableData.findOne({ model: model });
+  const findExistingModal = await ReactTableData.findOne({
+    model: model,
+    userId: userId,
+  });
 
   if (!findExistingModal) {
     const createTableRow = await ReactTableData.create({
@@ -35,7 +38,7 @@ const addTableData = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(500);
-    throw new Error(`${brand} -  ${model} is already there`);
+    throw new Error(`${brand} -  ${model} is already there `);
   }
 });
 const getTableData = asyncHandler(async (req, res) => {
@@ -57,14 +60,14 @@ const getTableData = asyncHandler(async (req, res) => {
 const updateTableDataStatus = asyncHandler(async (req, res) => {
   try {
     const { model } = req.params;
-    const { status } = req.body;
-    const checkExisting = await ReactTableData.find({ model: model });
+    const { status, id } = req.body;
+    const checkExisting = await ReactTableData.find({ model: model, _id: id });
     if (!checkExisting) {
       res.status(404);
       throw new Error(` ${model} not found`);
     }
     const updateExisitngModelData = await ReactTableData.findOneAndUpdate(
-      { model: model },
+      { model: model, userId: id },
       { $set: { status: status } },
       { new: true }
     );
@@ -82,18 +85,21 @@ const updateTableDataStatus = asyncHandler(async (req, res) => {
 const updateTableDataFav = asyncHandler(async (req, res) => {
   try {
     const { model } = req.params;
-    const { favorites } = req.body;
+    const { favorites, userId } = req.body;
     if (!favorites) {
       res.status(404);
       throw new Error("favorites filed is required");
     }
-    const checkExisting = await ReactTableData.find({ model: model });
+    const checkExisting = await ReactTableData.find({
+      model: model,
+      userId: userId,
+    });
     if (!checkExisting) {
       res.status(404);
       throw new Error(` ${model} not found`);
     }
     const updateExisitngModelData = await ReactTableData.findOneAndUpdate(
-      { model: model },
+      { model: model, userId: userId },
       { $set: { favorites: favorites } },
       { new: true }
     );
