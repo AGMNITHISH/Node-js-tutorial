@@ -25,9 +25,12 @@ const addCarDetails = asyncHandler(async (req, res) => {
 
 const allCars = asyncHandler(async (req, res) => {
   try {
-    const result = await carModel.find().select({
-      _id: 0,
-    });
+    const result = await carModel
+      .find()
+      .select({
+        _id: 0,
+      })
+      .distinct("brand");
     res.status(200).json({
       data: result,
     });
@@ -45,6 +48,7 @@ const modelBasedonBrand = asyncHandler(async (req, res) => {
       brand: 0,
       car_body: 0,
       __v: 0,
+      image: 0,
     });
     res.status(200).json({
       data: result,
